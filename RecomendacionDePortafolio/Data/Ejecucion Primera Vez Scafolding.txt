@@ -1,0 +1,1 @@
+﻿Scaffold-DbContext "Name=EFCoreContext" Microsoft.EntityFrameworkCore.SqlServer -OutputDir CarpetaDestino

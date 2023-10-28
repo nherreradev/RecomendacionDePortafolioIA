@@ -7,9 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace RecomendacionDePortafolio.Services
 {
     public class ProductRecommenderIAService
-    {
-
-       
+    {  
 
         public static string GetAbsolutePath(string relativeDatasetPath)
         {
@@ -22,17 +20,14 @@ namespace RecomendacionDePortafolio.Services
         }
 
         // Genero el path absoluto desde el relativo del proyecto leer el archivo trainig VIA AMAZON
-        private static readonly string BaseDataSetRelativePath = @"../../../DATA";
-        private static string TrainingDataRelativePath = $"{BaseDataSetRelativePath}/Amazon0302.txt";
-        private static string TrainingDataLocationRelative = GetAbsolutePath(TrainingDataRelativePath);
-
+        private static readonly string BaseDataSetRelativePath = @"../../../DATA";       
         // Genero el path absoluto desde el relativo del proyecto para guardar la entrada del SQL
         /****************Consumos.txt es el archivo que almacana las relaciones entre producto y coproductos*****************/
-        private static string DataRelativePath = $"{BaseDataSetRelativePath}/Consumos.txt";
+        private static string DataRelativePath = $"{BaseDataSetRelativePath}/Conservador.txt";
         private static string DataLocationRelative = GetAbsolutePath(DataRelativePath);
 
         private static string BaseModelRelativePath = @"../../../ModelML";
-        private static string ModelRelativePath = $"{BaseModelRelativePath}/model.zip";
+        private static string ModelRelativePath = $"{BaseModelRelativePath}/model_conservador.zip";
         private static string ModelPath = GetAbsolutePath(ModelRelativePath);
 
         public void generarArchivoTrainigDB()
@@ -42,13 +37,8 @@ namespace RecomendacionDePortafolio.Services
         }
         public void trainigModelML()
         {
-
             try
             {
-                // Código de generador en base al Historial en la db
-                generarArchivoTrainigDB();
-                // Código de entrenamiento aquí
-
                 //STEP 1: Create MLContext to be shared across the model creation workflow objects
                 MLContext mlContext = new MLContext();
 
@@ -115,7 +105,7 @@ namespace RecomendacionDePortafolio.Services
         {
             //Apartir de aca seria usar el modelo para crear la predicion
             //
-            //Seguinda parte o metodo que debe ejecutarse al pedir las solicitudes
+            //Segunda parte o metodo que debe ejecutarse al pedir las solicitudes
             PredictionEngine<ProductEntry, CopurchasePrediction> predictionengine = consumirModelML();
             var prediction = predictionengine.Predict(
                                                          new ProductEntry()
