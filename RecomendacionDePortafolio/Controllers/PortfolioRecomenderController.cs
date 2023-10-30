@@ -31,25 +31,29 @@ namespace RecomendacionDePortafolio.Controllers
         [HttpGet("RecomendarPortafolioConservador")]
         //[ProducesResponseType(StatusCodes.Status200OK, Type = typeof(JsonResult))]
         public JsonResult GetConservador()
-        { 
-            
-            return new JsonResult("Recomendación de portafolio conservador");
+        {
+            var resultado = _productRecommenderIAService.RecommendTop5Conservador(1);
+            //return new JsonResult("Recomendación de portafolio conservador");
+            return resultado;
+
         }
 
         [HttpGet("RecomendarPortafolioModerado")]
         //[ProducesResponseType(StatusCodes.Status200OK, Type = typeof(JsonResult))]
         public JsonResult GetModerado()
         {
-
-            return new JsonResult("Recomendación de portafolio Moderado");
+            var resultado = _productRecommenderIAService.RecommendTop5Moderado(1);
+            //return new JsonResult("Recomendación de portafolio Moderado");
+            return resultado;
         }
 
         [HttpGet("RecomendarPortafolioAgresivo")]
         //[ProducesResponseType(StatusCodes.Status200OK, Type = typeof(JsonResult))]
         public JsonResult GetAgresivo()
         {
-
-            return new JsonResult("Recomendación de portafolio Agresivo");
+            var resultado = _productRecommenderIAService.RecommendTop5Agresivo(1);
+            //return new JsonResult("Recomendación de portafolio Agresivo");
+            return resultado;
         }
         /// <summary>
         /// entrenamiento General
@@ -65,7 +69,6 @@ namespace RecomendacionDePortafolio.Controllers
         public void EntrenarIAConservador()
         {
             _productRecommenderIAService.trainigModelMLConservador();
-
         }
         [HttpPost("EntrenarIAModerado")]
         public void EntrenarIAModerado()
@@ -77,6 +80,7 @@ namespace RecomendacionDePortafolio.Controllers
         public void EntrenarIAAgresivo()
         {
             _productRecommenderIAService.trainigModelMLAgresivo();
+
         }
         //TODO Funcionalidad mediante Archivo actualizado desde API/JAVA
         //[HttpPost("EntrenarIAAgresivo")]
