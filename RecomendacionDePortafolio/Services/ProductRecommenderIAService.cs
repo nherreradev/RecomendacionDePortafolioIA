@@ -20,13 +20,13 @@ namespace RecomendacionDePortafolio.Services
         }
 
         // Genero el path absoluto desde el relativo del proyecto leer el archivo trainig VIA AMAZON
-        private static readonly string BaseDataSetRelativePath = @"../../../DATA";       
+        private static readonly string BaseDataSetRelativePath = "/home/data";       
         // Genero el path absoluto desde el relativo del proyecto para guardar la entrada del SQL
         /****************Consumos.txt es el archivo que almacana las relaciones entre producto y coproductos*****************/
         private static string DataRelativePath = $"{BaseDataSetRelativePath}/Conservador.txt";
         private static string DataLocationRelative = GetAbsolutePath(DataRelativePath);
 
-        private static string BaseModelRelativePath = @"../../../ModelML";
+        private static string BaseModelRelativePath = "/home/modelML";
         private static string ModelRelativePath = $"{BaseModelRelativePath}/model_conservador.zip";
         private static string ModelPath = GetAbsolutePath(ModelRelativePath);
 
