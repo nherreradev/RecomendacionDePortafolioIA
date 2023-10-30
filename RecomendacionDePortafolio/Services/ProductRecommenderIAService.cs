@@ -24,12 +24,23 @@ namespace RecomendacionDePortafolio.Services
         // Genero el path absoluto desde el relativo del proyecto para guardar la entrada del SQL
         /****************Consumos.txt es el archivo que almacana las relaciones entre producto y coproductos*****************/
         private static string DataRelativePath = $"{BaseDataSetRelativePath}/Conservador.txt";
+        private static string DataRelativePathConservador = $"{BaseDataSetRelativePath}/Conservador.txt";
+        private static string DataRelativePathModerado = $"{BaseDataSetRelativePath}/Moderado.txt";
+        private static string DataRelativePathAgresivo = $"{BaseDataSetRelativePath}/Agresivo.txt";
+        //Por default Toma el Conservador Al iniciar y pedir por la consulta original...
         private static string DataLocationRelative = GetAbsolutePath(DataRelativePath);
+
 
         private static string BaseModelRelativePath = "/home/modelML";
         private static string ModelRelativePath = $"{BaseModelRelativePath}/model_conservador.zip";
+        private static string ModelRelativePathConservador = $"{BaseModelRelativePath}/model_conservador.zip";
+        private static string ModelRelativePathModerado = $"{BaseModelRelativePath}/model_moderado.zip";
+        private static string ModelRelativePathAgresivo = $"{BaseModelRelativePath}/model_agresivo.zip";
+        //Por default Toma el Conservador Al iniciar y pedir por la consulta original...
         private static string ModelPath = GetAbsolutePath(ModelRelativePath);
 
+
+        private string RelativePath = "";
         public void generarArchivoTrainigDB()
         {
 
@@ -37,6 +48,7 @@ namespace RecomendacionDePortafolio.Services
         }
         public void trainigModelML()
         {
+          
             try
             {
                 //STEP 1: Create MLContext to be shared across the model creation workflow objects
@@ -46,6 +58,7 @@ namespace RecomendacionDePortafolio.Services
                 //        Do remember to replace amazon0302.txt with dataset from https://snap.stanford.edu/data/amazon0302.html
                 // Especifica la ubicación real de tus datos de entrenamiento 
                 //string TrainingDataLocation = "C:\\web3\\Pruebas\\LibreriaHtmlAgilityPack\\ProductRecommendation\\Data\\Amazon0302.txt";
+                // DataLocationRelative Es resultado del metodo de entrenamiento particular , seteado segunperfil solicitante..
                 string TrainingDataLocation = DataLocationRelative;
                 var traindata = mlContext.Data.LoadFromTextFile(path: TrainingDataLocation,
                                            columns: new[]
@@ -78,6 +91,7 @@ namespace RecomendacionDePortafolio.Services
                 ITransformer model = est.Fit(traindata);
 
                 //STEP EXTRA:Guardar el modelo para aligerar la ejecucion
+                //  ModelPath Es resultado del metodo de entrenamiento particular , seteado segun perfil solicitante para no reentrenar todo el tiempo..
                 mlContext.Model.Save(model, traindata.Schema, ModelPath);
                 Console.WriteLine("Archivo Model Generado....---");
                 //En esta parte termina el Trainig
@@ -87,11 +101,14 @@ namespace RecomendacionDePortafolio.Services
             {
                 Console.WriteLine("Error durante el entrenamiento del modelo: " + ex.Message);
             }
+
         }
 
         public PredictionEngine<ProductEntry, CopurchasePrediction> consumirModelML()
         {
             MLContext mlContext = new MLContext();
+            Console.WriteLine(ModelPath);
+            //return null;//TEST
             var model = mlContext.Model.Load(ModelPath, out var schema);
 
             //STEP 6: Create prediction engine and predict the score for Product 63 being co-purchased with Product 3.
@@ -126,7 +143,7 @@ namespace RecomendacionDePortafolio.Services
 
             // find the top 5 combined products for product 6
             Console.WriteLine("Calculating the top 5 products for product 3...");
-
+            //return null;//TEST
             var top5 = (from m in Enumerable.Range(1, 50)
                         let p = predictionengine.Predict(
                            new ProductEntry()
@@ -144,5 +161,55 @@ namespace RecomendacionDePortafolio.Services
             return new JsonResult(top5);
         }
 
+      /// <summary>
+      /// Entrenamiento de la ML Personalizado segun el perfil
+      /// </summary>
+        internal void trainigModelMLConservador()
+        { 
+            trainigModelMLSegunPerfil(DataRelativePathConservador, ModelRelativePathConservador);
+                  
+  
+    }
+
+        internal void trainigModelMLModerado()
+        {
+            trainigModelMLSegunPerfil(DataRelativePathModerado, ModelRelativePathModerado);
+        
+
+}
+
+        internal void trainigModelMLAgresivo()
+        {
+            trainigModelMLSegunPerfil(DataRelativePathAgresivo, ModelRelativePathAgresivo);
+        }
+
+        public void trainigModelMLSegunPerfil(string DataRelativePathSegunPerfil, string modelRelativePathSegunPerfil)
+        {
+            DataLocationRelative = GetAbsolutePath(DataRelativePathSegunPerfil);
+         
+            ModelPath = GetAbsolutePath(modelRelativePathSegunPerfil);
+            trainigModelML();
+        }
+
+        /// <summary>
+        /// Consimo de la Ml Segun el Perfil
+        /// </summary>
+        internal JsonResult RecommendTop5Conservador(int idProductoQueBuscaRecomendacion)
+        {
+            ModelPath = GetAbsolutePath(ModelRelativePathConservador);
+            return RecommendTop5(idProductoQueBuscaRecomendacion);
+        }
+
+        internal JsonResult RecommendTop5Moderado(int idProductoQueBuscaRecomendacion)
+        {
+            ModelPath = GetAbsolutePath(ModelRelativePathModerado);
+            return RecommendTop5(idProductoQueBuscaRecomendacion);
+        }
+
+        internal JsonResult RecommendTop5Agresivo(int idProductoQueBuscaRecomendacion)
+        {
+            ModelPath = GetAbsolutePath(ModelRelativePathAgresivo);
+            return RecommendTop5(idProductoQueBuscaRecomendacion);
+        }
     }
 }
