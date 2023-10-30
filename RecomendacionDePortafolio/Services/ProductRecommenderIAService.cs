@@ -144,5 +144,19 @@ namespace RecomendacionDePortafolio.Services
             return new JsonResult(top5);
         }
 
+        internal void trainigModelMLConservador()
+        {
+            throw new NotImplementedException();
+        }
+
+        internal void trainigModelMLModerado()
+        {
+            throw new NotImplementedException();
+        }
+
+        internal void trainigModelMLAgresivo()
+        {
+            throw new NotImplementedException();
+        }
     }
 }

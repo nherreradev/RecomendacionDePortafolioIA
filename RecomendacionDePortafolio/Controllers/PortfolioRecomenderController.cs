@@ -17,6 +17,9 @@ namespace RecomendacionDePortafolio.Controllers
         }
 
 
+        /// <summary>
+        /// REcomendaciones Top 5 general
+        /// </summary>
         [HttpGet("RecomendarPortafolio")]
         //[ProducesResponseType(StatusCodes.Status200OK, Type = typeof(JsonResult))]
         public JsonResult Get()
@@ -48,7 +51,9 @@ namespace RecomendacionDePortafolio.Controllers
 
             return new JsonResult("Recomendación de portafolio Agresivo");
         }
-
+        /// <summary>
+        /// entrenamiento General
+        /// </summary>
         [HttpPost("EntrenarIA")]
         public void EntrenarIA()
         {
@@ -59,14 +64,19 @@ namespace RecomendacionDePortafolio.Controllers
         [HttpPost("EntrenarIAConservador")]
         public void EntrenarIAConservador()
         {
-            _productRecommenderIAService.trainigModelML();
+            _productRecommenderIAService.trainigModelMLConservador();
 
         }
         [HttpPost("EntrenarIAModerado")]
         public void EntrenarIAModerado()
         {
-            _productRecommenderIAService.trainigModelML();
+            _productRecommenderIAService.trainigModelMLModerado();
 
+        }
+        [HttpPost("EntrenarIAAgresivo")]
+        public void EntrenarIAAgresivo()
+        {
+            _productRecommenderIAService.trainigModelMLAgresivo();
         }
         //TODO Funcionalidad mediante Archivo actualizado desde API/JAVA
         //[HttpPost("EntrenarIAAgresivo")]
