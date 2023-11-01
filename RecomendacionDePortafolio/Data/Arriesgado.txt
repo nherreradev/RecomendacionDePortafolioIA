@@ -1,0 +1,7 @@
+ProductID	ProductID_Copurchased
+7	60
+7	18
+18	60
+18	7
+60	18
+60	7

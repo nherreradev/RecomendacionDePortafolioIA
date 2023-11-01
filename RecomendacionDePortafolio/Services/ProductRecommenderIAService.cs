@@ -134,21 +134,22 @@ namespace RecomendacionDePortafolio.Services
 
         }
 
-        public JsonResult RecommendTop5(int productID)
+        public JsonResult RecommendTop5(int idProducto, string tipoPerfil)
         {
-            //Apartir de aca seria usar el modelo para crear la predicion
-            //
-            //Seguinda parte o metodo que debe ejecutarse al pedir las solicitudes
+
+            (int minProductId, int maxProductId) = obtenerRangoDeArchivoTXT(tipoPerfil);
+            
             PredictionEngine<ProductEntry, CopurchasePrediction> predictionengine = consumirModelML();
 
-            // find the top 5 combined products for product 6
-            Console.WriteLine("Calculating the top 5 products for product 3...");
-            //return null;//TEST
-            var top5 = (from m in Enumerable.Range(1, 50)
+            Console.WriteLine("minProductId -> " + minProductId + " maxProductId -> " + maxProductId);
+
+            Console.WriteLine("Calculating the top 5 products for product");
+         
+            var top5 = (from m in Enumerable.Range(minProductId, maxProductId)
                         let p = predictionengine.Predict(
                            new ProductEntry()
                            {
-                               ProductID = (uint)productID,
+                               ProductID = (uint)idProducto,
                                CoPurchaseProductID = (uint)m
                            })
                         orderby p.Score descending
@@ -160,14 +161,10 @@ namespace RecomendacionDePortafolio.Services
 
             return new JsonResult(top5);
         }
-
-      /// <summary>
-      /// Entrenamiento de la ML Personalizado segun el perfil
-      /// </summary>
         internal void trainigModelMLConservador()
         { 
             trainigModelMLSegunPerfil(DataRelativePathConservador, ModelRelativePathConservador);
-                  
+               
   
     }
 
@@ -191,25 +188,99 @@ namespace RecomendacionDePortafolio.Services
             trainigModelML();
         }
 
-        /// <summary>
-        /// Consimo de la Ml Segun el Perfil
-        /// </summary>
-        internal JsonResult RecommendTop5Conservador(int idProductoQueBuscaRecomendacion)
+        internal JsonResult RecommendTop5Conservador(int idProducto)
         {
             ModelPath = GetAbsolutePath(ModelRelativePathConservador);
-            return RecommendTop5(idProductoQueBuscaRecomendacion);
+            return RecommendTop5(idProducto, "Conservador");
         }
 
-        internal JsonResult RecommendTop5Moderado(int idProductoQueBuscaRecomendacion)
+        internal JsonResult RecommendTop5Moderado(int idProducto)
         {
             ModelPath = GetAbsolutePath(ModelRelativePathModerado);
-            return RecommendTop5(idProductoQueBuscaRecomendacion);
+            return RecommendTop5(idProducto, "Moderado");
         }
 
-        internal JsonResult RecommendTop5Agresivo(int idProductoQueBuscaRecomendacion)
+        internal JsonResult RecommendTop5Agresivo(int idProducto)
         {
             ModelPath = GetAbsolutePath(ModelRelativePathAgresivo);
-            return RecommendTop5(idProductoQueBuscaRecomendacion);
+            return RecommendTop5(idProducto, "Agresivo");
+        }
+
+        public (int, int) obtenerRangoDeArchivoTXT(string tipoPerfil)
+        {
+            string filePath = "";
+
+            if (tipoPerfil.Equals("Conservador"))
+            {
+               filePath = DataRelativePathConservador;  
+            }
+            else if (tipoPerfil.Equals("Moderado"))
+            {
+                filePath = DataRelativePathModerado;
+            }
+            else if (tipoPerfil.Equals("Agresivo"))
+            {
+                filePath = DataRelativePathAgresivo;
+            }
+
+
+            if (File.Exists(filePath))
+            {
+                // Lee todas las líneas del archivo
+                string[] lines = File.ReadAllLines(filePath);
+
+                if (lines.Length > 0)
+                {
+                    // Divide la primera línea en columnas para obtener los encabezados
+                    string[] headers = lines[0].Split('\t');
+                    if (headers.Length >= 2)
+                    {
+                        // Encuentra el índice de la primera columna (ProductID)
+                        int productIdColumnIndex = Array.IndexOf(headers, "ProductID");
+
+                        if (productIdColumnIndex != -1)
+                        {
+                            // Obtén los números de la primera columna
+                            var productIds = lines.Skip(1) // Excluye la primera línea (encabezados)
+                                .Select(line => line.Split('\t'))
+                                .Select(columns => int.Parse(columns[productIdColumnIndex]));
+
+                            // Calcula el primer y último número
+                            int minProductId = productIds.Min();
+                            int maxProductId = productIds.Max();
+
+                            // Crea un rango de números
+                            var numberRange = Enumerable.Range(minProductId, maxProductId - minProductId + 1);
+
+                            // Imprime el primer y último número
+                            Console.WriteLine("Primer número de la columna ProductID: " + minProductId);
+                            Console.WriteLine("Último número de la columna ProductID: " + maxProductId);
+
+                            return (minProductId, maxProductId);
+                        }
+                        else
+                        {
+                            Console.WriteLine("No se encontró la columna 'ProductID' en los encabezados.");
+                            return (0, 0);
+                        }
+                    }
+                    else
+                    {
+                        Console.WriteLine("Los encabezados no tienen el formato esperado.");
+                        return (0, 0);
+                    }
+                }
+                else
+                {
+                    Console.WriteLine("El archivo está vacío.");
+                    return (0, 0);
+                }
+            }
+            else
+            {
+                Console.WriteLine("El archivo no existe.");
+                return (0, 0);
+            }
         }
     }
 }
